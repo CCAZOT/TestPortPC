@@ -11,6 +11,7 @@ import java.util.Vector;
 import javax.comm.CommPortIdentifier;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -26,11 +27,12 @@ public class AffichageJavaComm extends JFrame implements ListSelectionListener {
 	  JButton Rafraichir = new JButton("Rafraichir");
 	  private JLabel ecran = new JLabel();
 	  private JList listbox;
+	  Vector<String> listBauds;
 	  
 	  
 	  public AffichageJavaComm(){
 		 
-		JavaComm = new TesteJavaComm("COM3");
+		JavaComm = new TesteJavaComm();
 		//Définition de la fenêtre principale
 	    this.setSize(400, 400);
 	    this.setTitle("Analyseur de ports séries");
@@ -53,7 +55,7 @@ public class AffichageJavaComm extends JFrame implements ListSelectionListener {
 	    //Creation du Panel de gauche
 	    JPanel PanelGauche = new JPanel();
 	    PanelGauche.setPreferredSize(new Dimension(190, 310));
-	    PanelGauche.setLayout(new BorderLayout());
+	    //PanelGauche.setLayout(new BorderLayout());
 	    
 	    //Creation du Panel du bas
 	    JPanel PanelBas = new JPanel();
@@ -72,9 +74,19 @@ public class AffichageJavaComm extends JFrame implements ListSelectionListener {
 	    Label1.setFont(police);
 	    
 	    JLabel Label2 = new JLabel();
-	    Label2.setText("<html><u>Liste des ports</u></html>");
-	    PanelDroit.add(Label2, BorderLayout.NORTH);
-	    Label2.setFont(police);
+	    Label2.setText("<html><u>Vitesse en Baud</u></html>");
+	    PanelGauche.add(Label2);
+	    
+	    JLabel Label3 = new JLabel();
+	    Label3.setText("<html><u>GGA</u></html>");
+	    
+	    JLabel Label4 = new JLabel();
+	    Label4.setText("<html><u>GLL</u></html>");
+	    
+	    JLabel Label5 = new JLabel();
+	    Label5.setText("<html><u>Liste des ports</u></html>");
+	    PanelDroit.add(Label5, BorderLayout.NORTH);
+	    Label5.setFont(police);
 	    
 	    PanelGauche.add(ecran);
 	    container.add(PanelGauche, BorderLayout.WEST);
@@ -87,18 +99,18 @@ public class AffichageJavaComm extends JFrame implements ListSelectionListener {
 
 		// Create some items to add to the list
 		this.initComposant();
-		String	listData2[] =
-		{
-			"Item 1",
-			"Item 2",
-			"Item 3",
-			"Item 4"
-		};
+
 		
-		Vector<String> liste =  new Vector<String>() ;
-		liste.add("un") ;
-		liste.add("deux") ;
-		liste.add("trois") ;
+		//Combobox 
+		JComboBox comboBaud = new JComboBox(listBauds);
+		comboBaud.setSelectedIndex(3);
+		comboBaud.addActionListener(new ComboListener());
+		comboBaud.setPreferredSize(new Dimension(180, 20));
+		comboBaud.setBorder(BorderFactory.createLineBorder(Color.black));
+		PanelGauche.add( comboBaud);
+		
+	    PanelGauche.add(Label3);
+	    PanelGauche.add(Label4);
 
 		// Create a new listbox control
 		listbox = new JList();
@@ -108,11 +120,12 @@ public class AffichageJavaComm extends JFrame implements ListSelectionListener {
 		listbox.setBorder(BorderFactory.createLineBorder(Color.black));
 		PanelDroit.add( listbox, BorderLayout.CENTER );
 		
+		// Bouton valider
 	    Valider.setPreferredSize(new Dimension(100, 40));
 	    Valider.addActionListener(new ValiderListener());
 	    PanelBas.add(Valider, BorderLayout.WEST);
 
-	    
+	    // Bouton Rafraichir
 	    Rafraichir.setPreferredSize(new Dimension(100, 40));
 	    Rafraichir.addActionListener(new RafraichirListener());
 	    PanelBas.add(Rafraichir, BorderLayout.EAST);
@@ -127,9 +140,17 @@ public class AffichageJavaComm extends JFrame implements ListSelectionListener {
 	      
 	  private void initComposant(){
 			
-			//for (int i = 0; i < JavaComm.listData.length; i++) {
-			//	System.out.println(JavaComm.listData[i]);
-			//	}
+			listBauds = new Vector<String>() ;
+			listBauds.add("1'200") ;
+			listBauds.add("2'400") ;
+			listBauds.add("4'800") ;
+			listBauds.add("9'600") ;
+			listBauds.add("19'200") ;
+			listBauds.add("38'400") ;
+			listBauds.add("57'600") ;
+			listBauds.add("115'200") ;
+			listBauds.add("230'400") ;
+			
 	  }
 
 
@@ -146,7 +167,17 @@ public class AffichageJavaComm extends JFrame implements ListSelectionListener {
 	  //Listener affecté au bouton =
 	  class ValiderListener implements ActionListener {
 	    public void actionPerformed(ActionEvent arg0){
-
+	    	JavaComm.ConnexionPort((String)listbox.getSelectedValue());
+	    	JavaComm.start();
 	    }
 	  }
+	  
+	  class ComboListener implements ActionListener {
+		    public void actionPerformed(ActionEvent arg0){
+
+		    	JComboBox cb = (JComboBox)arg0.getSource();
+		        String baudSelect = (String)cb.getSelectedItem();
+		        System.out.println(baudSelect);
+		    }
+		  }
 }
